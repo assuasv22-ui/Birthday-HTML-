@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday My Love</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle, #ffe6ee 0%, #f7b3c6 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Floating Balloons & Hearts Background */
+    .balloon {
+      position: absolute;
+      bottom: -100px;
+      width: 40px;
+      height: 50px;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      animation: float 8s infinite linear;
+      opacity: 0.7;
+      z-index: 1;
+    }
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -12px;
+      left: 19px;
+      width: 2px;
+      height: 15px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+      100% { transform: translateY(-110vh) rotate(20deg); opacity: 0; }
+    }
+
+    /* Card Box */
+    .card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(230, 100, 130, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      position: relative;
+      z-index: 10;
+      transition: all 0.5s ease;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Typography */
+    .subtitle {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .script-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3.2rem;
+      color: #222;
+      margin-bottom: 15px;
+      line-height: 1.1;
+    }
+
+    p {
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* Buttons */
+    .btn {
+      background: #ff4b72;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 75, 114, 0.4);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2deg);
+      background: #e03e61;
+    }
+
+    /* Catch Heart Game Screen */
+    .game-area {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      margin: 10px 0;
+    }
+
+    .floating-heart {
+      font-size: 2rem;
+      position: absolute;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+
+    .counter {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    /* Candle Screen */
+    .cake-container {
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .candle {
+      width: 16px;
+      height: 50px;
+      background: repeating-linear-gradient(45deg, #ff6b8b, #ff6b8b 5px, #fff 5px, #fff 10px);
+      border-radius: 4px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .flame {
+      width: 14px;
+      height: 22px;
+      background: #ff9d00;
+      border-radius: 50% 50% 20% 20%;
+      position: absolute;
+      top: -20px;
+      left: 1px;
+      box-shadow: 0 0 10px #ff9d00, 0 0 20px #ff9d00;
+      animation: flicker 0.1s infinite alternate;
+      cursor: pointer;
+    }
+
+    .flame.off {
+      display: none;
+    }
+
+    @keyframes flicker {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    /* Gift Box Screen */
+    .gift-box {
+      font-size: 4rem;
+      cursor: pointer;
+      margin: 20px 0;
+      position: relative;
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .gift-box:hover {
+      transform: scale(1.1);
+    }
+
+    .gift-lid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: transform 0.5s ease;
+    }
+
+    .gift-box.open .gift-lid {
+      transform: translateY(-40px) rotate(-20deg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Background Elements -->
+  <div id="balloon-container"></div>
+
+  <div class="card">
+    
+    <!-- Screen 1: Welcome -->
+    <div class="screen active" id="screen1">
+      <div class="subtitle">A Tiny Surprise For You</div>
+      <h1 class="script-title">Hey Beautiful</h1>
+      <p>Today is not just another day. It is the day my favorite person came into this world.</p>
+      <button class="btn" onclick="nextScreen(2)">Open Your Surprise 💝</button>
+    </div>
+
+    <!-- Screen 2: Catch the Heart Game -->
+    <div class="screen" id="screen2">
+      <h1 class="script-title">First, catch my heart</h1>
+      <p style="font-size: 0.85rem;">Click the floating heart 5 times to unlock your birthday wish</p>
+      <div class="counter" id="heart-count">Caught: 0/5</div>
+      <div class="game-area" id="game-area">
+        <span class="floating-heart" id="target-heart" onclick="catchHeart()">💖</span>
+      </div>
+    </div>
+
+    <!-- Screen 3: Candle Blow -->
+    <div class="screen" id="screen3">
+      <div class="cake-container">
+        <div class="candle">
+          <div class="flame" id="flame" onclick="blowCandle()"></div>
+        </div>
+      </div>
+      <p style="font-size: 0.85rem; margin-top: 15px;">Click the candle flame to blow it out</p>
+      <button class="btn" id="blow-btn" onclick="blowCandle()">Blow Candle 🕯️</button>
+    </div>
+
+    <!-- Screen 4: Gift Box -->
+    <div class="screen" id="screen4">
+      <h1 class="script-title">A Gift For You</h1>
+      <p style="font-size: 0.85rem;">Tap the gift box gently</p>
+      <div class="gift-box" id="gift-box" onclick="openGift()">
+        🎁
+      </div>
+      <p id="gift-text" style="display: none; font-weight: 500; color: #333; margin-top: 15px;">
+        Inside this gift is my love, my prayers, and my forever smile for you. 🥺💖
+      </p>
+    </div>
+
+    <!-- Screen 5: Final Birthday Wish -->
+    <div class="screen" id="screen5">
+      <h1 class="script-title">Happy Birthday My Love 🎂</h1>
+      <p>
+        On your special day, I just want to say that you are one of the most beautiful blessings in my life. Your smile makes my world softer, your presence makes my heart peaceful, and your love makes every day feel special.
+      </p>
+      <p>
+        May Allah bless you with endless happiness, healthy success, love, and every dream your heart silently prays for. I am so lucky to have you. 💖
+      </p>
+      <button class="btn" onclick="nextScreen(1); resetAll();">Replay Magic ✨</button>
+    </div>
+
+  </div>
+
+  <script>
+    let heartScore = 0;
+
+    // Generate Floating Background Balloons
+    const balloonContainer = document.getElementById('balloon-container');
+    const colors = ['#ff4b72', '#ff9a9e', '#fecfef', '#a1c4fd', '#ffd166'];
+    
+    for (let i = 0; i < 15; i++) {
+      let balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      balloon.style.left = Math.random() * 100 + 'vw';
+      balloon.style.animationDelay = Math.random() * 8 + 's';
+      balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      balloonContainer.appendChild(balloon);
+    }
+
+    // Navigation function
+    function nextScreen(screenNumber) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen' + screenNumber).classList.add('active');
+    }
+
+    // Screen 2 Game Logic
+    function catchHeart() {
+      heartScore++;
+      document.getElementById('heart-count').innerText = `Caught: ${heartScore}/5`;
+      
+      const heart = document.getElementById('target-heart');
+      const gameArea = document.getElementById('game-area');
+      
+      if (heartScore >= 5) {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+        setTimeout(() => nextScreen(3), 500);
+      } else {
+        // Move heart to random position
+        const maxX = gameArea.clientWidth - 40;
+        const maxY = gameArea.clientHeight - 40;
+        heart.style.left = Math.random() * maxX + 'px';
+        heart.style.top = Math.random() * maxY + 'px';
+      }
+    }
+
+    // Screen 3 Candle Logic
+    function blowCandle() {
+      document.getElementById('flame').classList.add('off');
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      setTimeout(() => nextScreen(4), 1200);
+    }
+
+    // Screen 4 Gift Logic
+    function openGift() {
+      document.getElementById('gift-text').style.display = 'block';
+      confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+      setTimeout(() => nextScreen(5), 2500);
+    }
+
+    // Reset All State
+    function resetAll() {
+      heartScore = 0;
+      document.getElementById('heart-count').innerText = 'Caught: 0/5';
+      document.getElementById('flame').classList.remove('off');
+      document.getElementById('gift-text').style.display = 'none';
+      const heart = document.getElementById('target-heart');
+      heart.style.left = '45%';
+      heart.style.top = '40%';
+    }
+  </script>
+</body>
+</html>
